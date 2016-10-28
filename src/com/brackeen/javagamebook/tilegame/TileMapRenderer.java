@@ -147,6 +147,14 @@ public class TileMapRenderer {
                 ((Creature)sprite).wakeUp();
             }
         }
+        Color color = new Color(0xff0000);
+        g.setColor(color);
+        g.drawString("Health", 10, 30);
+        g.drawString(Integer.toString(player.Health()), 10, 50);
+        if(player.iswin()){
+        	g.drawString("You Won!!!!!", screenWidth/3, screenHeight/2);
+        	for(int l = 0; l < 1000;l++);
+        }
     }
 
 }

@@ -23,6 +23,8 @@ public class GameManager extends GameCore {
     private int ct = 0;
     private boolean stopShooting = false;
 
+    //private int wt = 0;
+    
     public static void main(String[] args) {
         new GameManager().run();
     }
@@ -78,11 +80,11 @@ public class GameManager extends GameCore {
         shootSound = soundManager.getSound("sounds/shooting.wav");
 
         // start music
-        midiPlayer = new MidiPlayer();
-        Sequence sequence =
-                midiPlayer.getSequence("sounds/music.midi");
-        midiPlayer.play(sequence, true);
-        toggleDrumPlayback();
+//        midiPlayer = new MidiPlayer();
+//        Sequence sequence =
+//                midiPlayer.getSequence("sounds/music.midi");
+//        midiPlayer.play(sequence, false);
+//        toggleDrumPlayback();
     }
 
 
@@ -119,6 +121,7 @@ public class GameManager extends GameCore {
 
     //managin time
     private long currentTime = System.currentTimeMillis();
+    private long waitTime = System.currentTimeMillis();
 
     private void checkInput(long elapsedTime) {
         if (exit.isPressed()) {
@@ -129,13 +132,21 @@ public class GameManager extends GameCore {
             float velocityX = 0;
             float velocityY = 0;
             if (moveLeft.isPressed()) {
+                waitTime = System.currentTimeMillis();
+            	player.hCount();
                 velocityX-=player.getMaxSpeed();
+                player.stopWaiting();
             }
             if (moveRight.isPressed()) {
+                waitTime = System.currentTimeMillis();
+            	player.hCount();
                 velocityX+=player.getMaxSpeed();
+                player.stopWaiting();
             }
             if (jump.isPressed()) {
+                waitTime = System.currentTimeMillis();
                 player.jump(false);
+                player.stopWaiting();
             }
 
             if (shoot.isPressed()){
@@ -153,14 +164,15 @@ public class GameManager extends GameCore {
                             stopShooting = false;
                         }
                     }
-                }else if(ct == 1){
+                }else if(ct == 10){
                     if(System.currentTimeMillis() - currentTime >= 1000){
-                        shooting = true;
-                        ct++;
+                        shooting = false;
+                        ct = 0;
                         currentTime = System.currentTimeMillis();
+                        stopShooting = true;
                     }
-                }else if(ct <= 10){
-                    if(System.currentTimeMillis() - currentTime >= 400){
+                }else if(ct < 10){
+                    if(System.currentTimeMillis() - currentTime >= 300){
                         shooting = true;
                         ct++;
                         currentTime = System.currentTimeMillis();
@@ -174,9 +186,14 @@ public class GameManager extends GameCore {
                         stopShooting = false;
                     }
                 }
-            }else{
-                //resets shoot counter
-                ct = 0;
+            }
+            if(System.currentTimeMillis() - currentTime >= 1000){
+            	ct = 0;
+            }
+            if(System.currentTimeMillis() - waitTime >= 1000){
+                //wt = 0;
+                waitTime = System.currentTimeMillis();
+                player.Health(5);
             }
             player.setVelocityX(velocityX);
         }
@@ -313,6 +330,7 @@ public class GameManager extends GameCore {
         // player is dead! start map over
         if (player.getState() == Creature.STATE_DEAD) {
             map = resourceManager.reloadMap();
+            player.healthint();
             return;
         }
 
@@ -320,7 +338,7 @@ public class GameManager extends GameCore {
         checkInput(elapsedTime);
 
         // update player
-        updateCreature(player, elapsedTime);
+        updateCreature(player, player, elapsedTime);
         player.update(elapsedTime);
 
         // update bullet
@@ -348,7 +366,7 @@ public class GameManager extends GameCore {
                     i.remove();
                 }
                 else {
-                    evils = updateCreature(creature, elapsedTime);
+                    evils = updateCreature(player, creature, elapsedTime);
                     if(evils != null){
                         map.addEvilBullet(evils);
                     }
@@ -364,14 +382,14 @@ public class GameManager extends GameCore {
      Updates the creature, applying gravity for creatures that
      aren't flying, and checks collisions.
      */
-    private enemybullet updateCreature(Creature creature,
-                                       long elapsedTime)
+    private EvilBullet updateCreature(Creature player, Creature creature,
+                                      long elapsedTime)
     {
 
         // apply gravity
         if (!creature.isFlying()) {
             if(creature instanceof Bullet
-                    || creature instanceof enemybullet){
+                    || creature instanceof EvilBullet){
                 //do nothing
             }else{
                 creature.setVelocityY(creature.getVelocityY() +
@@ -384,6 +402,11 @@ public class GameManager extends GameCore {
         float oldX = creature.getX();
         float newX = oldX + dx * elapsedTime;
         if(creature instanceof Bullet){
+            Point tile =
+                    getTileCollision(creature, newX, creature.getY());
+            if(tile != null){
+            	creature.setState(creature.STATE_DEAD);
+            }
             if(creature.travel_accumulation(Math.abs(dx)) < creature.range){
                 creature.setX(newX);
             }else{
@@ -393,7 +416,12 @@ public class GameManager extends GameCore {
             checkBeingShot((Bullet)creature, (Player)map.getPlayer());
             return null;//Bullet will not bounce back if hit the edge of the map
         }
-        if(creature instanceof enemybullet){
+        if(creature instanceof EvilBullet){
+            Point tile =
+                    getTileCollision(creature, newX, creature.getY());
+            if(tile != null){
+            	creature.setState(creature.STATE_DEAD);
+            }
             if(creature.travel_accumulation_bug(Math.abs(dx)) < creature.bug_range){
                 creature.setX(newX);
             }else{
@@ -402,28 +430,62 @@ public class GameManager extends GameCore {
             }
             return null;//No bouncing
         }
+        
+        if(creature instanceof Grub){
+            dx = player.getX()-creature.getX();
+            if(dx > 0){
+            	creature.setVelocityX(creature.getMaxSpeed());
+            	dx = creature.getMaxSpeed();
+            }
+            else{
+            	dx = -creature.getMaxSpeed();
+            	creature.setVelocityX(-creature.getMaxSpeed());
+            }
+            oldX = creature.getX();
+            newX = oldX + dx * elapsedTime;
+            Point tile =
+                getTileCollision(creature, newX, creature.getY());
+            if (tile == null) {
+                creature.setX(newX);
+            }
+            else {
+                // line up with the tile boundary
+                if (dx > 0) {
+                    creature.setX(
+                        TileMapRenderer.tilesToPixels(tile.x) -
+                        creature.getWidth());
+                }
+                else if (dx < 0) {
+                    creature.setX(
+                        TileMapRenderer.tilesToPixels(tile.x + 1));
+                }
+                creature.collideHorizontal();
+            }
+        }else{
+	        Point tile =
+	                getTileCollision(creature, newX, creature.getY());
+	        if (tile == null) {
+	            creature.setX(newX);
+	        }
+	        else {
+	            // line up with the tile boundary
+	            if (dx > 0) {
+	                creature.setX(
+	                        TileMapRenderer.tilesToPixels(tile.x) -
+	                                creature.getWidth());
+	            }
+	            else if (dx < 0) {
+	                creature.setX(
+	                        TileMapRenderer.tilesToPixels(tile.x + 1));
+	            }
+	            creature.collideHorizontal();
+	        }
+	        if (creature instanceof Player) {
+	            checkPlayerCollision((Player)creature, false);
+	        }
+        }
         Point tile =
                 getTileCollision(creature, newX, creature.getY());
-        if (tile == null) {
-            creature.setX(newX);
-        }
-        else {
-            // line up with the tile boundary
-            if (dx > 0) {
-                creature.setX(
-                        TileMapRenderer.tilesToPixels(tile.x) -
-                                creature.getWidth());
-            }
-            else if (dx < 0) {
-                creature.setX(
-                        TileMapRenderer.tilesToPixels(tile.x + 1));
-            }
-            creature.collideHorizontal();
-        }
-        if (creature instanceof Player) {
-            checkPlayerCollision((Player)creature, false);
-        }
-
         // change y
         float dy = creature.getVelocityY();
         float oldY = creature.getY();
@@ -457,8 +519,8 @@ public class GameManager extends GameCore {
                         (creature.evilsct == 0 &&
                                 ((map.getPlayer().getVelocityX()==0 && System.currentTimeMillis() - creature.bugsct > 2000) ||
                                         (map.getPlayer().getVelocityX()!=0 && System.currentTimeMillis() - creature.bugsct > 500)))){
-                    enemybullet evils =
-                            (enemybullet) resourceManager.getEvilBullet().clone();
+                    EvilBullet evils =
+                            (EvilBullet) resourceManager.getEvilBullet().clone();
                     if(!creature.face_left){
                         evils.setX(creature.getX() + 10);
                         evils.setY(creature.getY() + 10);
@@ -486,9 +548,10 @@ public class GameManager extends GameCore {
             if(collisionSprite instanceof Grub){
                 Creature badguy = (Creature)collisionSprite;
                 badguy.setState(1);
+                player.Health(10);
                 //do hp calculations here
             }
-            if(collisionSprite instanceof enemybullet){
+            if(collisionSprite instanceof EvilBullet){
                 ((Creature) collisionSprite).setState(Creature.STATE_DEAD);
             }
             if(collisionSprite instanceof Fly){
@@ -516,14 +579,14 @@ public class GameManager extends GameCore {
         if (collisionSprite instanceof PowerUp) {
             acquirePowerUp((PowerUp)collisionSprite);
         }
-        else if (collisionSprite instanceof enemybullet){
+        else if (collisionSprite instanceof EvilBullet){
             Creature evils = (Creature)collisionSprite;
             evils.setState(Creature.STATE_DEAD);
-            //TODO: hp calculations here(per shot damage and also set death here if hp is at 0
-//            player.hp -= dmg;
-//            if(player.hp == 0){
-//                player.setState(Creature.STATE_DYING);
-//            }
+            //TODO: hp calculations here(per shot damage and also set death here if hp is at 0  DONE
+            if(player.Health(-5) <= 0){
+            	player.setState(Creature.STATE_DYING);
+            
+            }
         }
         else if (collisionSprite instanceof Bullet){
             //do nothing
@@ -536,8 +599,7 @@ public class GameManager extends GameCore {
                 badguy.setState(Creature.STATE_DYING);
                 player.setY(badguy.getY() - player.getHeight());
                 player.jump(true);
-                //TODO:does hp need to increase when shot
-                //player.hp += hp boost
+                //TODO:does hp need to increase when shot  DONE
             }
             else {
                 // player dies!

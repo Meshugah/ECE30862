@@ -129,61 +129,72 @@ public class ResourceManager {
     private TileMap loadMap(String filename)
             throws IOException
     {
-        ArrayList lines = new ArrayList();
-        int width = 0;
-        int height = 0;
+//        ArrayList lines = new ArrayList();
+//        int width = 0;
+//        int height = 0;
+//
+//        // read every line in the text file into the list
+//        BufferedReader reader = new BufferedReader(
+//                new FileReader(filename));
+//        while (true) {
+//            String line = reader.readLine();
+//            // no more lines to read
+//            if (line == null) {
+//                reader.close();
+//                break;
+//            }
+//
+//            // add every line except for comments
+//            if (!line.startsWith("#")) {
+//                lines.add(line);
+//                width = Math.max(width, line.length());
+//            }
+//        }
+//
+//        // parse the lines to create a TileEngine
+//        height = lines.size();
+//        TileMap newMap = new TileMap(width, height);
+//        for (int y=0; y<height; y++) {
+//            String line = (String)lines.get(y);
+//            for (int x=0; x<line.length(); x++) {
+//                char ch = line.charAt(x);
+//
+//                // check if the char represents tile A, B, C etc.
+//                int tile = ch - 'A';
+//                if (tile >= 0 && tile < tiles.size()) {
+//                    newMap.setTile(x, y, (Image)tiles.get(tile));
+//                }
+//
+//                // check if the char represents a sprite
+//                else if (ch == 'o') {
+//                    addSprite(newMap, coinSprite, x, y);
+//                }
+//                else if (ch == '!') {
+//                    addSprite(newMap, musicSprite, x, y);
+//                }
+//                else if (ch == '*') {
+//                    addSprite(newMap, goalSprite, x, y);
+//                }
+//                else if (ch == '1') {
+//                    addSprite(newMap, grubSprite, x, y);
+//                }
+//                else if (ch == '2') {
+//                    addSprite(newMap, flySprite, x, y);
+//                }
+//            }
+//        }
+    	
+    	// initializes a flat map if none specified
+        int width = 40;
+        int height = 10;
+        TileMap newMap = new TileMap(width, height);   
+        int y = 9;
+        for(int x = 0; x < width; x++){
+            newMap.setTile(x, y, (Image)tiles.get(0));
 
-        // read every line in the text file into the list
-        BufferedReader reader = new BufferedReader(
-                new FileReader(filename));
-        while (true) {
-            String line = reader.readLine();
-            // no more lines to read
-            if (line == null) {
-                reader.close();
-                break;
-            }
-
-            // add every line except for comments
-            if (!line.startsWith("#")) {
-                lines.add(line);
-                width = Math.max(width, line.length());
-            }
         }
-
-        // parse the lines to create a TileEngine
-        height = lines.size();
-        TileMap newMap = new TileMap(width, height);
-        for (int y=0; y<height; y++) {
-            String line = (String)lines.get(y);
-            for (int x=0; x<line.length(); x++) {
-                char ch = line.charAt(x);
-
-                // check if the char represents tile A, B, C etc.
-                int tile = ch - 'A';
-                if (tile >= 0 && tile < tiles.size()) {
-                    newMap.setTile(x, y, (Image)tiles.get(tile));
-                }
-
-                // check if the char represents a sprite
-                else if (ch == 'o') {
-                    addSprite(newMap, coinSprite, x, y);
-                }
-                else if (ch == '!') {
-                    addSprite(newMap, musicSprite, x, y);
-                }
-                else if (ch == '*') {
-                    addSprite(newMap, goalSprite, x, y);
-                }
-                else if (ch == '1') {
-                    addSprite(newMap, grubSprite, x, y);
-                }
-                else if (ch == '2') {
-                    addSprite(newMap, flySprite, x, y);
-                }
-            }
-        }
-
+        addSprite(newMap, grubSprite, 35, 0);
+    	
         // add the player to the map
         Sprite player = (Sprite)playerSprite.clone();
         player.setX(TileMapRenderer.tilesToPixels(3));
@@ -360,12 +371,12 @@ public class ResourceManager {
 
         //create "enemyBullet"
         anim = new Animation();
-        image = loadImage("bullet.png");
+        image = loadImage("evilbullet.png");
         anim.addFrame(image, 150);
         anim2 = new Animation();
         image = getMirrorImage(image);
         anim2.addFrame(image, 150);
-        evilbulletSprite = new enemybullet(anim2, anim, anim2, anim);
+        evilbulletSprite = new EvilBullet(anim2, anim, anim2, anim);
     }
 
 }

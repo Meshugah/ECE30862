@@ -180,8 +180,8 @@ public abstract class Creature extends Sprite {
         }
     }
     public double travel_length = 0;
-    public final double range = 150;
-    public final double bug_range = 100;
+    public final double range = 50;
+    public final double bug_range = 50;
     public double travel_accumulation(float newX){
         travel_length += newX;
         if(travel_length >= range){
