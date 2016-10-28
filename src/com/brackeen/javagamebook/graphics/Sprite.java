@@ -5,7 +5,7 @@ import java.awt.Image;
 public class Sprite {
 
     protected Animation anim;
-    // position (pixels)
+    // position (pixels) THIS IS GOOD
     private float x;
     private float y;
     // velocity (pixels per millisecond)

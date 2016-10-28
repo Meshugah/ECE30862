@@ -1,6 +1,6 @@
 package com.brackeen.javagamebook.input;
 
-/**
+/** THIS IS GOOD
     The GameAction class is an abstract to a user-initiated
     action, like jumping or moving. GameActions can be mapped
     to keys or the mouse with the InputManager.

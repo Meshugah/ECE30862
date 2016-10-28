@@ -1,49 +1,23 @@
 package com.brackeen.javagamebook.tilegame.sprites;
 
 import com.brackeen.javagamebook.graphics.Animation;
-import com.brackeen.javagamebook.test.GameCore;
 
 /**
-    The Player.
-*/
+ The Player.
+ */
 public class Player extends Creature {
 
     private static final float JUMP_SPEED = -.95f;
 
     private boolean onGround;
-    public int hp = 20;
-    private final int maxhp = 40;
+
     public Player(Animation left, Animation right,
                   Animation deadLeft, Animation deadRight)
     {
         super(left, right, deadLeft, deadRight);
     }
 
-    public int getHp(){
-        //dead, return 0
-        if(!isAlive()){return 0;}
-        //Moving or Still?
-        int v_x = Math.round(Math.abs(getVelocityX()));
-        //Still
-        if(v_x == 0 && onGround == true){
-            if(GameCore.critical_time >= 1000){
-                hp+=5;
-                GameCore.critical_time = 0;
-            }
-        }
-        //Moving
-        else if(v_x != 0 || onGround == false){
-            if(GameCore.critical_time >= 1000){
-                hp+=1;
-                GameCore.critical_time = 0;
-            }
-        }
-        //Shooting
-        //never exceed 40
-        if(hp > maxhp){hp = maxhp;}
-        if(hp < 0){hp = 0;}
-        return hp;
-    }
+
     public void collideHorizontal() {
         setVelocityX(0);
     }
@@ -66,6 +40,7 @@ public class Player extends Creature {
         super.setY(y);
     }
 
+
     public void wakeUp() {
         // do nothing
     }
@@ -86,6 +61,5 @@ public class Player extends Creature {
     public float getMaxSpeed() {
         return 0.5f;
     }
-
 
 }

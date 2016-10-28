@@ -19,6 +19,10 @@ package com.brackeen.javagamebook.tilegame;
  */
 public class GameManager extends GameCore {
 
+    private boolean shooting;
+    private int ct = 0;
+    private boolean stopShooting = false;
+
     public static void main(String[] args) {
         new GameManager().run();
     }
@@ -40,15 +44,14 @@ public class GameManager extends GameCore {
     private Sound boopSound;
     private InputManager inputManager;
     private TileMapRenderer renderer;
-    private Sound shootingSound;
-    private Sound bugsShouting;
+    private Sound shootSound;
 
     private GameAction moveLeft;
     private GameAction moveRight;
     private GameAction jump;
     private GameAction exit;
     private GameAction shoot;
-    private GameAction falldown;
+
 
     public void init() {
         super.init();
@@ -72,8 +75,7 @@ public class GameManager extends GameCore {
         soundManager = new SoundManager(PLAYBACK_FORMAT);
         prizeSound = soundManager.getSound("sounds/prize.wav");
         boopSound = soundManager.getSound("sounds/boop2.wav");
-        shootingSound = soundManager.getSound("sounds/shooting.wav");
-        bugsShouting = soundManager.getSound("sounds/shouting.wav");
+        shootSound = soundManager.getSound("sounds/shooting.wav");
 
         // start music
         midiPlayer = new MidiPlayer();
@@ -102,7 +104,7 @@ public class GameManager extends GameCore {
         exit = new GameAction("exit",
                 GameAction.DETECT_INITAL_PRESS_ONLY);
         shoot = new GameAction("shoot");
-        falldown = new GameAction("falldown");
+
         inputManager = new InputManager(
                 screen.getFullScreenWindow());
         inputManager.setCursor(InputManager.INVISIBLE_CURSOR);
@@ -112,13 +114,12 @@ public class GameManager extends GameCore {
         inputManager.mapToKey(jump, KeyEvent.VK_UP);
         inputManager.mapToKey(exit, KeyEvent.VK_ESCAPE);
         inputManager.mapToKey(shoot, KeyEvent.VK_S);
-        inputManager.mapToKey(falldown, KeyEvent.VK_DOWN);
+
     }
 
-    public boolean shooting = false;
+    //managin time
     private long currentTime = System.currentTimeMillis();
-    private int shooting_ct = 0;
-    private boolean frozen = false;
+
     private void checkInput(long elapsedTime) {
         if (exit.isPressed()) {
             stop();
@@ -136,48 +137,46 @@ public class GameManager extends GameCore {
             if (jump.isPressed()) {
                 player.jump(false);
             }
-            if (falldown.isPressed()) {
-                velocityY+=player.getMaxSpeed();
-                player.setVelocityY(velocityY + 1);
-            }
+
             if (shoot.isPressed()){
                 //create Bullet
-                if(shooting_ct == 0){
-                    if(!frozen){
+                if(ct == 0){
+                    if(!stopShooting){
                         shooting = true;
-                        shooting_ct++;
+                        ct++;
                         currentTime = System.currentTimeMillis();
                     }else{
                         if(System.currentTimeMillis() - currentTime >= 1000){
                             shooting = true;
-                            shooting_ct++;
+                            ct++;
                             currentTime = System.currentTimeMillis();
-                            frozen = false;
+                            stopShooting = false;
                         }
                     }
-                }else if(shooting_ct == 1){
+                }else if(ct == 1){
                     if(System.currentTimeMillis() - currentTime >= 1000){
                         shooting = true;
-                        shooting_ct++;
+                        ct++;
                         currentTime = System.currentTimeMillis();
                     }
-                }else if(shooting_ct <= 10){
+                }else if(ct <= 10){
                     if(System.currentTimeMillis() - currentTime >= 400){
                         shooting = true;
-                        shooting_ct++;
+                        ct++;
                         currentTime = System.currentTimeMillis();
                     }
                 }else{
-                    frozen = true;
+                    stopShooting = true;
                     if(System.currentTimeMillis() - currentTime >= 1000){
                         shooting = true;
-                        shooting_ct = 2;
+                        ct = 2;
                         currentTime = System.currentTimeMillis();
-                        frozen = false;
+                        stopShooting = false;
                     }
                 }
             }else{
-                shooting_ct = 0;
+                //resets shoot counter
+                ct = 0;
             }
             player.setVelocityX(velocityX);
         }
@@ -187,21 +186,7 @@ public class GameManager extends GameCore {
     public void draw(Graphics2D g) {
         renderer.draw(g, map,
                 screen.getWidth(), screen.getHeight());
-        // draw health
-        Player player = (Player)map.getPlayer();
-        g.setColor(Color.red);
-        g.setFont(new Font("Arial",0,50));
-        g.drawString("hp:" + player.getHp() ,50,50);
-        if(player.getHp() == 0) {
-            g.setColor(Color.red);
-            g.setFont(new Font("Arial",0,100));
-            g.drawString("WASTED", 200, 300);
-        }
-        if(frozen){
-            g.setColor(Color.cyan);
-            g.setFont(new Font("Arial",0,50));
-            g.drawString("Reloading", 500, 50);
-        }
+
     }
 
 
@@ -351,7 +336,7 @@ public class GameManager extends GameCore {
             }
             myBullet.setVelocityY(0);
             map.addSprite(myBullet);
-            soundManager.play(shootingSound);
+            soundManager.play(shootSound);
         }
         // update other sprites
         Iterator i = map.getSprites();;
@@ -499,13 +484,17 @@ public class GameManager extends GameCore {
         if(collisionSprite != null){
             bullet.setState(2);
             if(collisionSprite instanceof Grub){
-                soundManager.play(bugsShouting);
                 Creature badguy = (Creature)collisionSprite;
                 badguy.setState(1);
-                player.hp += 10;
+                //do hp calculations here
             }
             if(collisionSprite instanceof EvilBullet){
                 ((Creature) collisionSprite).setState(Creature.STATE_DEAD);
+            }
+            if(collisionSprite instanceof Fly){
+                Creature badguy2 = (Creature)collisionSprite;
+                badguy2.setState(1);
+                //do hp calculations here
             }
         }
     }
@@ -519,7 +508,6 @@ public class GameManager extends GameCore {
                                      boolean canKill)
     {
         if (!player.isAlive()) {
-            critical_time = 0;
             return;
         }
 
@@ -531,10 +519,11 @@ public class GameManager extends GameCore {
         else if (collisionSprite instanceof EvilBullet){
             Creature evils = (Creature)collisionSprite;
             evils.setState(Creature.STATE_DEAD);
-            player.hp -= 5;
-            if(player.getHp() == 0){
-                player.setState(Creature.STATE_DYING);
-            }
+            //TODO: hp calculations here(per shot damage and also set death here if hp is at 0
+//            player.hp -= dmg;
+//            if(player.hp == 0){
+//                player.setState(Creature.STATE_DYING);
+//            }
         }
         else if (collisionSprite instanceof Bullet){
             //do nothing
@@ -547,7 +536,8 @@ public class GameManager extends GameCore {
                 badguy.setState(Creature.STATE_DYING);
                 player.setY(badguy.getY() - player.getHeight());
                 player.jump(true);
-                player.hp += 10;
+                //TODO:does hp need to increase when shot
+                //player.hp += hp boost
             }
             else {
                 // player dies!

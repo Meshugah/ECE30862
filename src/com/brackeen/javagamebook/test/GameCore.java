@@ -27,8 +27,8 @@ public abstract class GameCore {
 
     private boolean isRunning;
     protected ScreenManager screen;
-    public static long critical_time = 0;
-
+//    public static long critical_time = 0;
+    //okay so this is new lol why is this here
 
     /**
      Signals the game loop that it's time to quit
@@ -111,7 +111,7 @@ public abstract class GameCore {
             long elapsedTime =
                     System.currentTimeMillis() - currTime;
             currTime += elapsedTime;
-            critical_time += elapsedTime;
+            //critical_time += elapsedTime;
 
             // update
             update(elapsedTime);

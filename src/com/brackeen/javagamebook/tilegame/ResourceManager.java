@@ -358,7 +358,7 @@ public class ResourceManager {
         anim2.addFrame(image, 150);
         bulletSprite = new Bullet(anim,anim2,anim,anim2);
 
-        //create "EvilBullet"
+        //create "enemyBullet"
         anim = new Animation();
         image = loadImage("evilbullet.png");
         anim.addFrame(image, 150);

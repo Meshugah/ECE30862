@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.ArrayList;
 import javax.swing.SwingUtilities;
 
-/**
+/** THIS IS GOOD
     The InputManager manages input of key and mouse events.
     Events are mapped to GameActions.
 */
