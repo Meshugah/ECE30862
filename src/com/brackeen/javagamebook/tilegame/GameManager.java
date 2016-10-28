@@ -364,14 +364,14 @@ public class GameManager extends GameCore {
      Updates the creature, applying gravity for creatures that
      aren't flying, and checks collisions.
      */
-    private EvilBullet updateCreature(Creature creature,
-                                      long elapsedTime)
+    private enemybullet updateCreature(Creature creature,
+                                       long elapsedTime)
     {
 
         // apply gravity
         if (!creature.isFlying()) {
             if(creature instanceof Bullet
-                    || creature instanceof EvilBullet){
+                    || creature instanceof enemybullet){
                 //do nothing
             }else{
                 creature.setVelocityY(creature.getVelocityY() +
@@ -393,7 +393,7 @@ public class GameManager extends GameCore {
             checkBeingShot((Bullet)creature, (Player)map.getPlayer());
             return null;//Bullet will not bounce back if hit the edge of the map
         }
-        if(creature instanceof EvilBullet){
+        if(creature instanceof enemybullet){
             if(creature.travel_accumulation_bug(Math.abs(dx)) < creature.bug_range){
                 creature.setX(newX);
             }else{
@@ -457,8 +457,8 @@ public class GameManager extends GameCore {
                         (creature.evilsct == 0 &&
                                 ((map.getPlayer().getVelocityX()==0 && System.currentTimeMillis() - creature.bugsct > 2000) ||
                                         (map.getPlayer().getVelocityX()!=0 && System.currentTimeMillis() - creature.bugsct > 500)))){
-                    EvilBullet evils =
-                            (EvilBullet) resourceManager.getEvilBullet().clone();
+                    enemybullet evils =
+                            (enemybullet) resourceManager.getEvilBullet().clone();
                     if(!creature.face_left){
                         evils.setX(creature.getX() + 10);
                         evils.setY(creature.getY() + 10);
@@ -488,7 +488,7 @@ public class GameManager extends GameCore {
                 badguy.setState(1);
                 //do hp calculations here
             }
-            if(collisionSprite instanceof EvilBullet){
+            if(collisionSprite instanceof enemybullet){
                 ((Creature) collisionSprite).setState(Creature.STATE_DEAD);
             }
             if(collisionSprite instanceof Fly){
@@ -516,7 +516,7 @@ public class GameManager extends GameCore {
         if (collisionSprite instanceof PowerUp) {
             acquirePowerUp((PowerUp)collisionSprite);
         }
-        else if (collisionSprite instanceof EvilBullet){
+        else if (collisionSprite instanceof enemybullet){
             Creature evils = (Creature)collisionSprite;
             evils.setState(Creature.STATE_DEAD);
             //TODO: hp calculations here(per shot damage and also set death here if hp is at 0

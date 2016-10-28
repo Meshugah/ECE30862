@@ -8,9 +8,9 @@ import com.brackeen.javagamebook.graphics.Sprite;
  */
 
 
-public class EvilBullet extends Creature {
+public class enemybullet extends Creature {
 
-    public EvilBullet(Animation anim,Animation anim2,Animation anim3,Animation anim4)
+    public enemybullet(Animation anim, Animation anim2, Animation anim3, Animation anim4)
     {
 
         super(anim,anim2,anim3,anim4);

@@ -360,12 +360,12 @@ public class ResourceManager {
 
         //create "enemyBullet"
         anim = new Animation();
-        image = loadImage("evilbullet.png");
+        image = loadImage("bullet.png");
         anim.addFrame(image, 150);
         anim2 = new Animation();
         image = getMirrorImage(image);
         anim2.addFrame(image, 150);
-        evilbulletSprite = new EvilBullet(anim2, anim, anim2, anim);
+        evilbulletSprite = new enemybullet(anim2, anim, anim2, anim);
     }
 
 }
