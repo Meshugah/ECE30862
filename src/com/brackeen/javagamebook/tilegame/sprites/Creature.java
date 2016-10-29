@@ -18,6 +18,8 @@ public abstract class Creature extends Sprite {
     public static final int STATE_NORMAL = 0;
     public static final int STATE_DYING = 1;
     public static final int STATE_DEAD = 2;
+    public float wait = 0;
+    private float waitx = -1;
 
     private Animation left;
     private Animation right;
@@ -140,7 +142,21 @@ public abstract class Creature extends Sprite {
         setVelocityY(0);
     }
 
-
+    public int isWaiting(float x) {
+    	if(wait == 0){
+    		wait = System.currentTimeMillis();
+    	}
+    	if(System.currentTimeMillis()-wait > 1000){
+    		return 1;
+    	}
+    	if(waitx != -1){
+    		waitx = x;
+    	}
+    	if(waitx - x == 120){
+    		return 1;
+    	}
+    	return 0;
+    }
     /**
      Updates the animaton for this creature.
      */
@@ -180,8 +196,8 @@ public abstract class Creature extends Sprite {
         }
     }
     public double travel_length = 0;
-    public final double range = 150;
-    public final double bug_range = 100;
+    public final double range = 50;
+    public final double bug_range = 50;
     public double travel_accumulation(float newX){
         travel_length += newX;
         if(travel_length >= range){

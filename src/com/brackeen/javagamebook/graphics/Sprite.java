@@ -12,11 +12,55 @@ public class Sprite {
     private float dx;
     private float dy;
 
+    static private int health = 20;
+    private int hcount = 0;
+    private float wait;
+    public boolean win = false;
+    private static final int DIE_TIME = 1000;
+
+    public static final int STATE_NORMAL = 0;
+    public static final int STATE_DYING = 1;
+    public static final int STATE_DEAD = 2;
+
     /**
         Creates a new Sprite object with the specified Animation.
     */
     public Sprite(Animation anim) {
         this.anim = anim;
+    }
+    
+    public void win(){
+    	win = true;
+    }
+    
+    public boolean iswin(){
+    	return win;
+    }
+    
+    public void lose(){
+    	win = false;
+    }
+    
+    public int Health() {
+    	return health;
+    }
+    
+    public void healthint() {
+    	health = 20;
+    }
+    
+    public void hCount(){
+    	hcount++;
+    	if(hcount>25){
+    		hcount = 0;
+    		Health(1);
+    	}
+    }
+    
+    public int  Health(int x){
+    	health +=x;
+    	if(health > 40){health=40;}
+    	return health;
     }
 
     /**
@@ -118,5 +162,21 @@ public class Sprite {
     */
     public Object clone() {
         return new Sprite(anim);
+    }
+    public float getMaxSpeed() {
+        return 0.5f;
+    }
+    
+    public void waiting(long elapsedTime){
+    	if(wait == -1){
+    		wait = elapsedTime;
+    	}
+    	else if((elapsedTime - wait) > 1000){
+    		wait = elapsedTime;
+    		Health(5);
+    	}
+    }
+    public void stopWaiting(){
+    	wait = -1;
     }
 }
