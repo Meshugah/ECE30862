@@ -150,23 +150,31 @@ public class TileMapRenderer {
         }
         Color color = new Color(0xff0000);
         g.setColor(color);
+        //changes text to red
         g.drawString("Health", 10, 30);
         g.drawString(Integer.toString(player.Health()), 10, 50);
+        /*
+         * prints:
+         * Health
+         * (amount of health) 
+         * 
+         * at top right
+         */
+        
         Creature play = (Creature)map.getPlayer();
         if (!play.isAlive() && ct < 50) {
         	ct++;
         	g.drawString("You Died!", screenWidth/3, screenHeight/2);
-        	//for(int l = 0; l < 100000;l++);
-        	//player.lose();
+        	//prints you died!!
         }        
         if(player.iswin() && ct < 50){
         	ct++;
         	g.drawString("You Won!!!!!", screenWidth/3, screenHeight/2);
-        	//for(int l = 0; l < 100000;l++);
-        	//player.lose();
+        	//prints you win!!
         }
         else{
         	player.lose();
+        	//exits win state
         	ct = 0;
         	}
     }

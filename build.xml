@@ -6,7 +6,7 @@
 <!-- Ant 1.5 build file                                                    -->
 <!-- ===================================================================== -->
 
-<project name="chap05 - Creating a 2D Platform Game" default="build" basedir=".">
+<project name="Game" default="build" basedir=".">
 
     <property name="srcdir" value="src"/>
     <property name="destdir" value="build"/>
