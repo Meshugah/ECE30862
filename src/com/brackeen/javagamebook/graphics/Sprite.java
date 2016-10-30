@@ -13,9 +13,17 @@ public class Sprite {
     private float dy;
 
     static private int health = 20;
+    //health stat
     private int hcount = 0;
+    //health counter
     private float wait;
     public boolean win = false;
+    //winning state
+    private static final int DIE_TIME = 1000;
+
+    public static final int STATE_NORMAL = 0;
+    public static final int STATE_DYING = 1;
+    public static final int STATE_DEAD = 2;
 
     /**
         Creates a new Sprite object with the specified Animation.
@@ -24,22 +32,32 @@ public class Sprite {
         this.anim = anim;
     }
     
+    //sets win state
     public void win(){
     	win = true;
     }
     
+    //checks win state
     public boolean iswin(){
     	return win;
     }
     
+    //resets win state
+    public void lose(){
+    	win = false;
+    }
+    
+    //checks health
     public int Health() {
     	return health;
     }
     
+    //initialize health
     public void healthint() {
     	health = 20;
     }
     
+    //increase health while moving
     public void hCount(){
     	hcount++;
     	if(hcount>25){
@@ -48,6 +66,7 @@ public class Sprite {
     	}
     }
     
+    //increase health by x
     public int  Health(int x){
     	health +=x;
     	if(health > 40){health=40;}
@@ -158,6 +177,7 @@ public class Sprite {
         return 0.5f;
     }
     
+    //does nothing
     public void waiting(long elapsedTime){
     	if(wait == -1){
     		wait = elapsedTime;
@@ -167,6 +187,8 @@ public class Sprite {
     		Health(5);
     	}
     }
+    
+   //does nothing
     public void stopWaiting(){
     	wait = -1;
     }

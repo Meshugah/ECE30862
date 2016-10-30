@@ -23,7 +23,7 @@ public abstract class GameCore {
 //            new DisplayMode(1024, 768, 16, 0),
 //            new DisplayMode(1024, 768, 32, 0),
 //            new DisplayMode(1024, 768, 24, 0),
-    		new DisplayMode(1920, 1080, 32, 0)
+    		new DisplayMode(1280, 720, 32, 0)  //makes the game widescreen
     };
 
     private boolean isRunning;

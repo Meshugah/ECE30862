@@ -20,6 +20,7 @@ import com.brackeen.javagamebook.tilegame.sprites.Creature;
 
     <p>This TileMapRender uses a tile size of 64.
 */
+
 public class TileMapRenderer {
 
     private static final int TILE_SIZE = 64;
@@ -28,7 +29,7 @@ public class TileMapRenderer {
     private static final int TILE_SIZE_BITS = 6;
 
     private Image background;
-
+    private int ct = 0;
     /**
      Converts a pixel position to a tile position.
      */
@@ -149,12 +150,33 @@ public class TileMapRenderer {
         }
         Color color = new Color(0xff0000);
         g.setColor(color);
+        //changes text to red
         g.drawString("Health", 10, 30);
         g.drawString(Integer.toString(player.Health()), 10, 50);
-        if(player.iswin()){
+        /*
+         * prints:
+         * Health
+         * (amount of health) 
+         * 
+         * at top right
+         */
+        
+        Creature play = (Creature)map.getPlayer();
+        if (!play.isAlive() && ct < 50) {
+        	ct++;
+        	g.drawString("You Died!", screenWidth/3, screenHeight/2);
+        	//prints you died!!
+        }        
+        if(player.iswin() && ct < 50){
+        	ct++;
         	g.drawString("You Won!!!!!", screenWidth/3, screenHeight/2);
-        	for(int l = 0; l < 1000;l++);
+        	//prints you win!!
         }
+        else{
+        	player.lose();
+        	//exits win state
+        	ct = 0;
+        	}
     }
 
 }

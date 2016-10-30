@@ -194,6 +194,8 @@ public class ResourceManager {
 
         }
         addSprite(newMap, grubSprite, 35, 0);
+        addSprite(newMap, goalSprite, 39, 8);
+
     	
         // add the player to the map
         Sprite player = (Sprite)playerSprite.clone();
