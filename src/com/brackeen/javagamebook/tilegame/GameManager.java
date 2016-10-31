@@ -151,6 +151,12 @@ public class GameManager extends GameCore {
             }
 
             if (shoot.isPressed()){
+                midiPlayer = new MidiPlayer();
+
+                Sequence sequence = midiPlayer.getSequence("sounds/gun.mid");
+                midiPlayer.play(sequence, false);
+
+                //toggleDrumPlayback();
                 //create Bullet
                 if(ct == 0){
                     if(!stopShooting){
