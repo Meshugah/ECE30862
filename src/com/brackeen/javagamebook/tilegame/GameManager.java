@@ -77,7 +77,7 @@ public class GameManager extends GameCore {
         soundManager = new SoundManager(PLAYBACK_FORMAT);
         prizeSound = soundManager.getSound("sounds/prize.wav");
         boopSound = soundManager.getSound("sounds/boop2.wav");
-        shootSound = soundManager.getSound("sounds/shooting.wav");
+        shootSound = soundManager.getSound("sounds/gunshot.wav");
 
         // start music
 //        midiPlayer = new MidiPlayer();
@@ -130,7 +130,6 @@ public class GameManager extends GameCore {
         Player player = (Player)map.getPlayer();
         if (player.isAlive()) {
             float velocityX = 0;
-            float velocityY = 0;
             if (moveLeft.isPressed()) {
                 waitTime = System.currentTimeMillis();
             	player.hCount();								
@@ -412,6 +411,7 @@ public class GameManager extends GameCore {
         	//this is how the game handles player bullets
             Point tile =
                     getTileCollision(creature, newX, creature.getY());
+                    soundManager.play(shootSound);
             if(tile != null){
             	creature.setState(creature.STATE_DEAD);								
             	//if it hits something, it dies
@@ -552,22 +552,22 @@ public class GameManager extends GameCore {
                                 		//if player stands still, wait 2 sec
                                         (map.getPlayer().getVelocityX()!=0 && System.currentTimeMillis() - creature.bugsct > 500)))){
                 							//if player is moving, wait .5 sec
-                    EvilBullet evils =
+                    EvilBullet evilBullet =
                             (EvilBullet) resourceManager.getEvilBullet().clone();			
                     //spawn bullet
                     if(!creature.face_left){						
                     	///set velocity
-                        evils.setX(creature.getX() + 10);
-                        evils.setY(creature.getY() + 10);
-                        evils.setVelocityX(0.7f);
+                        evilBullet.setX(creature.getX() + 10);
+                        evilBullet.setY(creature.getY() + 10);
+                        evilBullet.setVelocityX(0.7f);
                     }else{
-                        evils.setX(creature.getX() - 10);
-                        evils.setY(creature.getY() + 10);
-                        evils.setVelocityX(-0.7f);
+                        evilBullet.setX(creature.getX() - 10);
+                        evilBullet.setY(creature.getY() + 10);
+                        evilBullet.setVelocityX(-0.7f);
                     }
                     creature.bugsct = System.currentTimeMillis();
                     creature.evilsct++;
-                    return evils;
+                    return evilBullet;
                 }
             }else{
                 creature.bugsct = System.currentTimeMillis();
