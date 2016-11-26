@@ -77,7 +77,7 @@ public class GameManager extends GameCore {
         soundManager = new SoundManager(PLAYBACK_FORMAT);
         prizeSound = soundManager.getSound("sounds/prize.wav");
         boopSound = soundManager.getSound("sounds/boop2.wav");
-        shootSound = soundManager.getSound("sounds/gunshot.wav");
+        shootSound = soundManager.getSound("sounds/gun.mid");
 
         // start music
 //        midiPlayer = new MidiPlayer();
@@ -151,6 +151,8 @@ public class GameManager extends GameCore {
             }
 
             if (shoot.isPressed()){
+                int ct=0;
+                //midiPlayer.close();
                 midiPlayer = new MidiPlayer();
 
                 Sequence sequence = midiPlayer.getSequence("sounds/gun.mid");
@@ -178,6 +180,7 @@ public class GameManager extends GameCore {
                         ct = 0;
                         currentTime = System.currentTimeMillis();
                         stopShooting = true;
+
                     }
                 }else if(ct < 10){
                     if(System.currentTimeMillis() - currentTime >= 300){			
