@@ -18,12 +18,12 @@ import com.brackeen.javagamebook.tilegame.sprites.*;
 public class ResourceManager {
 
     private ArrayList tiles;
-    private int currentMap;
+    private String currentMap;
     private GraphicsConfiguration gc;
 
     // host sprites used for cloning
     private Sprite playerSprite;
-    private Sprite musicSprite;
+    private Sprite mushSprite;
     private Sprite coinSprite;
     private Sprite goalSprite;
     private Sprite grubSprite;
@@ -92,20 +92,16 @@ public class ResourceManager {
     }
 
 
-    public TileMap loadNextMap() {
+    public TileMap loadNextMap(String filename) {
         TileMap map = null;
+        currentMap = filename;
         while (map == null) {
-            currentMap++;
+//            currentMap++;
             try {
-                map = loadMap(
-                        "maps/map" + currentMap + ".txt");
+                map = loadMap(filename);
             }
             catch (IOException ex) {
-                if (currentMap == 1) {
-                    // no maps to load!
-                    return null;
-                }
-                currentMap = 0;
+//                currentMap = 0;
                 map = null;
             }
         }
@@ -116,8 +112,7 @@ public class ResourceManager {
 
     public TileMap reloadMap() {
         try {
-            return loadMap(
-                    "maps/map" + currentMap + ".txt");
+            return loadMap(currentMap);
         }
         catch (IOException ex) {
             ex.printStackTrace();
@@ -129,81 +124,95 @@ public class ResourceManager {
     private TileMap loadMap(String filename)
             throws IOException
     {
-//        ArrayList lines = new ArrayList();
-//        int width = 0;
-//        int height = 0;
-//
-//        // read every line in the text file into the list
-//        BufferedReader reader = new BufferedReader(
-//                new FileReader(filename));
-//        while (true) {
-//            String line = reader.readLine();
-//            // no more lines to read
-//            if (line == null) {
-//                reader.close();
-//                break;
-//            }
-//
-//            // add every line except for comments
-//            if (!line.startsWith("#")) {
-//                lines.add(line);
-//                width = Math.max(width, line.length());
-//            }
-//        }
-//
-//        // parse the lines to create a TileEngine
-//        height = lines.size();
-//        TileMap newMap = new TileMap(width, height);
-//        for (int y=0; y<height; y++) {
-//            String line = (String)lines.get(y);
-//            for (int x=0; x<line.length(); x++) {
-//                char ch = line.charAt(x);
-//
-//                // check if the char represents tile A, B, C etc.
-//                int tile = ch - 'A';
-//                if (tile >= 0 && tile < tiles.size()) {
-//                    newMap.setTile(x, y, (Image)tiles.get(tile));
-//                }
-//
-//                // check if the char represents a sprite
-//                else if (ch == 'o') {
-//                    addSprite(newMap, coinSprite, x, y);
-//                }
-//                else if (ch == '!') {
-//                    addSprite(newMap, musicSprite, x, y);
-//                }
-//                else if (ch == '*') {
-//                    addSprite(newMap, goalSprite, x, y);
-//                }
-//                else if (ch == '1') {
-//                    addSprite(newMap, grubSprite, x, y);
-//                }
-//                else if (ch == '2') {
-//                    addSprite(newMap, flySprite, x, y);
-//                }
-//            }
-//        }
+    	if(filename != null){
+    		
+
+	        ArrayList lines = new ArrayList();
+	        int width = 0;
+	        int height = 0;
+	
+	        // read every line in the text file into the list
+	        BufferedReader reader = new BufferedReader(
+	                new FileReader(filename));
+	        while (true) {
+	            String line = reader.readLine();
+	            // no more lines to read
+	            if (line == null) {
+	                reader.close();
+	                break;
+	            }
+	
+	            // add every line except for comments
+	            if (!line.startsWith("#")) {
+	                lines.add(line);
+	                width = Math.max(width, line.length());
+	            }
+	        }
+	
+	        // parse the lines to create a TileEngine
+	        height = lines.size();
+	        TileMap newMap = new TileMap(width, height);
+	        for (int y=0; y<height; y++) {
+	            String line = (String)lines.get(y);
+	            for (int x=0; x<line.length(); x++) {
+	                char ch = line.charAt(x);
+	
+	                // check if the char represents tile A, B, C etc.
+	                int tile = ch - 'A';
+	                if (tile >= 0 && tile < tiles.size()) {
+	                    newMap.setTile(x, y, (Image)tiles.get(tile));
+	                }
+	
+	                // check if the char represents a sprite
+	                else if (ch == 'o') {
+	                    addSprite(newMap, coinSprite, x, y);
+	                }
+	                else if (ch == '!') {
+	                    addSprite(newMap, mushSprite, x, y);
+	                }
+	                else if (ch == '*') {
+	                    addSprite(newMap, goalSprite, x, y);
+	                }
+	                else if (ch == '1') {
+	                    addSprite(newMap, grubSprite, x, y);
+	                }
+	                else if (ch == '2') {
+	                    addSprite(newMap, flySprite, x, y);
+	                }
+	            }
+	        }
+	        // add the player to the map
+	        Sprite player = (Sprite)playerSprite.clone();
+	        player.setX(TileMapRenderer.tilesToPixels(3));
+	        player.setY(0);
+	        newMap.setPlayer(player);
+
+	        return newMap;
+    	}
+    	else{
+	    	// initializes a flat map if none specified
+	        int width = 40;
+	        int height = 10;
+//	        TileMap newMap = new TileMap(width, height);
+
+	        TileMap newMap = new TileMap(width, height);   
+	        int y = 9;
+	        for(int x = 0; x < width; x++){
+	            newMap.setTile(x, y, (Image)tiles.get(0));
+	
+	        }
+	        addSprite(newMap, grubSprite, 35, 0);
+	        addSprite(newMap, goalSprite, 39, 8);
+	        // add the player to the map
+	        Sprite player = (Sprite)playerSprite.clone();
+	        player.setX(TileMapRenderer.tilesToPixels(3));
+	        player.setY(0);
+	        newMap.setPlayer(player);
+
+	        return newMap;
+    	}
     	
-    	// initializes a flat map if none specified
-        int width = 40;
-        int height = 10;
-        TileMap newMap = new TileMap(width, height);   
-        int y = 9;
-        for(int x = 0; x < width; x++){
-            newMap.setTile(x, y, (Image)tiles.get(0));
 
-        }
-        addSprite(newMap, grubSprite, 35, 0);
-        addSprite(newMap, goalSprite, 39, 8);
-
-    	
-        // add the player to the map
-        Sprite player = (Sprite)playerSprite.clone();
-        player.setX(TileMapRenderer.tilesToPixels(3));
-        player.setY(0);
-        newMap.setPlayer(player);
-
-        return newMap;
     }
 
 
@@ -354,13 +363,13 @@ public class ResourceManager {
         anim.addFrame(loadImage("star4.png"), 100);
         coinSprite = new PowerUp.Star(anim);
 
-        // create "music" sprite
+        // create "mush" sprite
         anim = new Animation();
-        anim.addFrame(loadImage("music1.png"), 150);
-        anim.addFrame(loadImage("music2.png"), 150);
-        anim.addFrame(loadImage("music3.png"), 150);
-        anim.addFrame(loadImage("music2.png"), 150);
-        musicSprite = new PowerUp.Music(anim);
+        anim.addFrame(loadImage("mush1.png"), 150);
+        anim.addFrame(loadImage("mush2.png"), 150);
+        anim.addFrame(loadImage("mush3.png"), 150);
+        anim.addFrame(loadImage("mush2.png"), 150);
+        mushSprite = new PowerUp.Mush(anim);
 
         // create "Bullet"
         anim = new Animation();

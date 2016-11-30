@@ -153,10 +153,14 @@ public class TileMapRenderer {
         //changes text to red
         g.drawString("Health", 10, 30);
         g.drawString(Integer.toString(player.Health()), 10, 50);
+        if(player.checkinv()){
+        	g.drawString("Invincible!!!", 10, 70);
+        }
         /*
          * prints:
          * Health
          * (amount of health) 
+         * (invincibility check)
          * 
          * at top right
          */

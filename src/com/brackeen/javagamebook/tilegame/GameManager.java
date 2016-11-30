@@ -3,52 +3,70 @@ package com.brackeen.javagamebook.tilegame;
         import java.awt.*;
         import java.awt.event.KeyEvent;
         import java.util.Iterator;
-        import java.util.Scanner;
 
         import javax.sound.midi.Sequence;
         import javax.sound.midi.Sequencer;
         import javax.sound.sampled.AudioFormat;
+        import javax.sound.sampled.*;
 
         import com.brackeen.javagamebook.graphics.*;
         import com.brackeen.javagamebook.sound.*;
         import com.brackeen.javagamebook.input.*;
         import com.brackeen.javagamebook.test.GameCore;
         import com.brackeen.javagamebook.tilegame.sprites.*;
+        import java.util.Scanner;
+        import com.sun.glass.ui.Size;
+        import java.io.File;
 
 /**
  GameManager manages all parts of the game.
  */
 public class GameManager extends GameCore {
 
-    private static boolean Default;
     private boolean shooting;
     private int ct = 0;
     private boolean stopShooting = false;
+    public String filename = null;
+
 
     //private int wt = 0;
     
-    public static void main(String[] args) {
+    public static void main(String[] args) 
+	{
+    	GameManager x = new GameManager();
 
-
-    //user input
-    Scanner input = new Scanner(System.in); //lol 
-    	System.out.println("Please enter the name of the file you would like to read from.");
+    	Scanner input = new Scanner(System.in);
+    	boolean input_act;
+    	System.out.println("Please enter the name of the file you would like to read from. Leave blank for default");
     	while(true){
-        System.out.println("1 = MAP1");
-        System.out.println("2 = MAP2");
-        String option = input.nextLine();
-        if(option.equals("1")){
-            Default = true;
-            break;
-        }else if(option.equals("B")) {
-            Default = false;
-            break;
-        }       }
-       new GameManager().run();
-    }
-
-
-
+//    	System.out.println("A.Default Map");
+//    	System.out.println("B.Your Map");
+    	String option = input.nextLine();
+    	if(option.equals("")){
+    		x.filename = null;
+    		
+    		
+    		break;
+    	}else{
+    		x.filename = "maps/"+option;
+    		File f = new File(x.filename);
+    		if(f.exists() && !f.isDirectory()) { 
+        		break;
+    		}
+    		System.out.println("Please enter a real file or leave it blank.");
+    	}}	
+    	x.run();
+//           new GameManager().run();         
+        }    	
+//        GameManager x = new GameManager();//.run();
+//
+//        Scanner scanner = new Scanner(System.in);
+//        System.out.println("Enter Filename:");
+////        filename=scanner.next();
+//        String fn = scanner.nextLine(); //This is needed to pick up the new line
+////        filename = fn;
+//        x.run();
+//    }
 
     // uncompressed, 44100Hz, 16-bit, mono, signed, little-endian
     private static final AudioFormat PLAYBACK_FORMAT =
@@ -92,13 +110,16 @@ public class GameManager extends GameCore {
                 resourceManager.loadImage("background.png"));
 
         // load first map
-        map = resourceManager.loadNextMap();
+        map = resourceManager.loadNextMap(filename);
 
         // load sounds
         soundManager = new SoundManager(PLAYBACK_FORMAT);
         prizeSound = soundManager.getSound("sounds/prize.wav");
         boopSound = soundManager.getSound("sounds/boop2.wav");
-        shootSound = soundManager.getSound("sounds/gun.mid");
+        shootSound = soundManager.getSound("sounds/gunshot.wav");
+        soundManager.play(shootSound);
+
+        
 
         // start music
 //        midiPlayer = new MidiPlayer();
@@ -151,12 +172,14 @@ public class GameManager extends GameCore {
         Player player = (Player)map.getPlayer();
         if (player.isAlive()) {
             float velocityX = 0;
+
             if (moveLeft.isPressed()) {
                 waitTime = System.currentTimeMillis();
             	player.hCount();								
             	//increases health over time while walking
                 velocityX-=player.getMaxSpeed();
-                player.stopWaiting();							
+                player.stopWaiting();			
+                player.checkinv(1);
                 //stops the counter while standing still
             }
             if (moveRight.isPressed()) {
@@ -164,23 +187,28 @@ public class GameManager extends GameCore {
             	player.hCount();
                 velocityX+=player.getMaxSpeed();
                 player.stopWaiting();
+                player.checkinv(1);
             }
             if (jump.isPressed()) {
                 waitTime = System.currentTimeMillis();
                 player.jump(false);
                 player.stopWaiting();
+                player.checkinv(1);
             }
-
+            
             if (shoot.isPressed()){
-                int ct=0;
-                //midiPlayer.close();
-                midiPlayer = new MidiPlayer();
+//                midiPlayer = new MidiPlayer();
 
-                Sequence sequence = midiPlayer.getSequence("sounds/gun.mid");
-                midiPlayer.play(sequence, false);
+//                Sequence sequence = midiPlayer.getSequence("sounds/gun.mid");
+//                midiPlayer.play(sequence, false);
+//                midiPlayer.close();
 
                 //toggleDrumPlayback();
                 //create Bullet
+                //shootSound = soundManager.getSound("sounds/gunshot.wav");
+                //soundManager = new SoundManager(PLAYBACK_FORMAT);
+
+            	soundManager.play(shootSound);
                 if(ct == 0){
                     if(!stopShooting){
                         shooting = true;
@@ -201,7 +229,6 @@ public class GameManager extends GameCore {
                         ct = 0;
                         currentTime = System.currentTimeMillis();
                         stopShooting = true;
-
                     }
                 }else if(ct < 10){
                     if(System.currentTimeMillis() - currentTime >= 300){			
@@ -221,13 +248,14 @@ public class GameManager extends GameCore {
                 }
             }
             if(System.currentTimeMillis() - currentTime >= 1000){					
-            	//if you don't shoot 10 sec, count is reset
+            	//if you don't shoot 1 sec, count is reset
             	ct = 0;
             }
             if(System.currentTimeMillis() - waitTime >= 1000){						
             	//if you wait 1 sec, health is increased
                 //wt = 0;
                 waitTime = System.currentTimeMillis();
+                player.notinv();
                 player.Health(5);
             }
             player.setVelocityX(velocityX);
@@ -441,9 +469,10 @@ public class GameManager extends GameCore {
         	//this is how the game handles player bullets
             Point tile =
                     getTileCollision(creature, newX, creature.getY());
-                    soundManager.play(shootSound);
+                    soundManager.play(prizeSound);
             if(tile != null){
-            	creature.setState(creature.STATE_DEAD);								
+            	creature.setState(creature.STATE_DEAD);	
+            	
             	//if it hits something, it dies
             }
             if(creature.travel_accumulation(Math.abs(dx)) < creature.range){
@@ -461,7 +490,7 @@ public class GameManager extends GameCore {
             Point tile =
                     getTileCollision(creature, newX, creature.getY());
             if(tile != null){
-            	creature.setState(creature.STATE_DEAD);
+            	creature.setState(creature.STATE_DEAD);								
             	//if it hits something, it dies
             }
             if(creature.travel_accumulation_bug(Math.abs(dx)) < creature.bug_range){		
@@ -540,7 +569,7 @@ public class GameManager extends GameCore {
 	            creature.collideHorizontal();
 	        }
 	        if (creature instanceof Player) {
-	            checkPlayerCollision((Player)creature, false);
+	            checkPlayerCollision((Player)creature, false, elapsedTime);
 	        }
         }
         Point tile =
@@ -568,7 +597,7 @@ public class GameManager extends GameCore {
         }
         if (creature instanceof Player) {
             boolean canKill = (oldY < creature.getY());
-            checkPlayerCollision((Player)creature, canKill);
+            checkPlayerCollision((Player)creature, canKill, elapsedTime);
         }
 
         if(creature instanceof Grub){							
@@ -636,8 +665,7 @@ public class GameManager extends GameCore {
      canKill is true, collisions with Creatures will kill
      them.
      */
-    public void checkPlayerCollision(Player player,
-                                     boolean canKill)
+    public void checkPlayerCollision(Player player, boolean canKill, float elapsedTime)
     {
         if (!player.isAlive()) {
             return;
@@ -646,17 +674,20 @@ public class GameManager extends GameCore {
         // check for player collision with other sprites
         Sprite collisionSprite = getSpriteCollision(player);
         if (collisionSprite instanceof PowerUp) {
-            acquirePowerUp((PowerUp)collisionSprite);
+            acquirePowerUp((PowerUp)collisionSprite,player, elapsedTime);
         }
         else if (collisionSprite instanceof EvilBullet){
             Creature evils = (Creature)collisionSprite;
             evils.setState(Creature.STATE_DEAD);					
             //if player runs into evil bullet, hurts player and kills bullet
             //Done: hp calculations here(per shot damage and also set death here if hp is at 0  DONE
-            if(player.Health(-5) <= 0){
-            	player.setState(Creature.STATE_DYING);				
-            	//check to see if player died
-            
+            if(!player.checkinv()){
+            	
+	            if(player.Health(-5) <= 0){
+	            	player.setState(Creature.STATE_DYING);	
+	            	soundManager.play(boopSound);
+	            	//check to see if player died
+	            }
             }
         }
         else if (collisionSprite instanceof Bullet){				
@@ -675,8 +706,10 @@ public class GameManager extends GameCore {
                 //:does hp need to increase when shot  DONE
             }
             else {
+            	if(!player.checkinv()){
             	// player dies! if the creature runs into him
-                player.setState(Creature.STATE_DYING);
+            			player.setState(Creature.STATE_DYING);
+            	}
             }
         }
     }
@@ -686,24 +719,26 @@ public class GameManager extends GameCore {
      Gives the player the speicifed power up and removes it
      from the map.
      */
-    public void acquirePowerUp(PowerUp powerUp) {
+    public void acquirePowerUp(PowerUp powerUp, Creature player, float elapsedTime) {
         // remove it from the map
         map.removeSprite(powerUp);
 
         if (powerUp instanceof PowerUp.Star) {
             // do something here, like give the player points
             soundManager.play(prizeSound);
+            player.inv();
         }
-        else if (powerUp instanceof PowerUp.Music) {
+        else if (powerUp instanceof PowerUp.Mush) {
             // change the music not used
             soundManager.play(prizeSound);
-            toggleDrumPlayback();
+//            toggleDrumPlayback();
+            player.Health(5);
         }
         else if (powerUp instanceof PowerUp.Goal) {
             // end goal
             soundManager.play(prizeSound,
                     new EchoFilter(2000, .7f), false);
-            map = resourceManager.loadNextMap();
+            map = resourceManager.loadNextMap(filename);
             map.getPlayer().win();
             map.getPlayer().healthint();
         }
