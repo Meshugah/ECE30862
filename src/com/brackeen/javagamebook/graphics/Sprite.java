@@ -24,6 +24,9 @@ public class Sprite {
     public static final int STATE_NORMAL = 0;
     public static final int STATE_DYING = 1;
     public static final int STATE_DEAD = 2;
+    
+    public boolean invincible = false;
+    public int invdist = 0;
 
     /**
         Creates a new Sprite object with the specified Animation.
@@ -63,6 +66,30 @@ public class Sprite {
     	if(hcount>25){
     		hcount = 0;
     		Health(1);
+    	}
+    }
+    
+    public void inv(){
+    	invincible = true;
+    	invdist = 0;
+    }
+    
+    public void notinv(){
+    	invincible = false;
+    }
+    
+    public boolean checkinv(){
+    	return invincible;
+    }
+    
+    public boolean checkinv(int dist){
+    	invdist ++;
+    	if(invdist > 500){
+    		invdist = 0;
+    		invincible = false;
+    		return false;
+    	}else{
+    		return invincible;
     	}
     }
     

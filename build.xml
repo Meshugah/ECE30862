@@ -67,7 +67,7 @@
         <mkdir dir="${docdir}"/>
 
         <javadoc
-            destdir="${docdir}"
+            destdir="${docdirq}"
             access="private"
             author="true"
             version="true"
