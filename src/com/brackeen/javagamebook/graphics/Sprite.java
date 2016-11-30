@@ -27,6 +27,9 @@ public class Sprite {
     
     public boolean invincible = false;
     public int invdist = 0;
+    
+    public int poisd = 0;
+    public boolean poisoned = false;
 
     /**
         Creates a new Sprite object with the specified Animation.
@@ -84,12 +87,36 @@ public class Sprite {
     
     public boolean checkinv(int dist){
     	invdist ++;
-    	if(invdist > 500){
+    	if(invdist > 300){
     		invdist = 0;
     		invincible = false;
     		return false;
     	}else{
     		return invincible;
+    	}
+    }
+    
+    public void pois(){
+    	poisoned = true;
+    	poisd = 0;
+    }
+    
+    public void notpois(){
+    	poisoned = false;
+    }
+    
+    public boolean checkpois(){
+    	return poisoned;
+    }
+    
+    public boolean checkpois(int dist){
+    	poisd ++;
+    	if(poisd > 300){
+    		poisd = 0;
+    		poisoned = false;
+    		return false;
+    	}else{
+    		return poisoned;
     	}
     }
     
