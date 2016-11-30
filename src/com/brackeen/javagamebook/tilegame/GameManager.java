@@ -734,10 +734,24 @@ public class GameManager extends GameCore {
 //            toggleDrumPlayback();
             player.Health(5);
         }
+        else if (powerUp instanceof PowerUp.Bomb)
+        {
+            player.Health(-10);
+        }
+
+        else if (powerUp instanceof PowerUp.Gas )
+        {
+//            player.isWaiting(10000);
+            //MAKE THIS STOP SHOOTING
+
+        }
+
+
+
         else if (powerUp instanceof PowerUp.Goal) {
             // end goal
             soundManager.play(prizeSound,
-                    new EchoFilter(2000, .7f), false);
+                    new EchoFilter(2000, .7f), true);
             map = resourceManager.loadNextMap(filename);
             map.getPlayer().win();
             map.getPlayer().healthint();

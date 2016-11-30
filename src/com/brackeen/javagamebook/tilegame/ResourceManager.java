@@ -30,6 +30,8 @@ public class ResourceManager {
     private Sprite flySprite;
     private Sprite bulletSprite;
     private Sprite evilbulletSprite;
+    private Sprite gasSprite;
+    private Sprite bombSprite;
     public Sprite getBullet(){
         return bulletSprite;
     }
@@ -179,6 +181,12 @@ public class ResourceManager {
 	                else if (ch == '2') {
 	                    addSprite(newMap, flySprite, x, y);
 	                }
+                    else if (ch == '3'){
+                        addSprite(newMap, gasSprite, x, y);
+                    }
+                    else if (ch == '4'){
+                        addSprite(newMap, bombSprite, x, y);
+                    }
 	            }
 	        }
 	        // add the player to the map
@@ -388,6 +396,18 @@ public class ResourceManager {
         image = getMirrorImage(image);
         anim2.addFrame(image, 150);
         evilbulletSprite = new EvilBullet(anim2, anim, anim2, anim);
+
+        //GAS SPRITE
+        anim = new Animation();
+        image = loadImage("gas.png");
+        anim.addFrame(image, 150);
+        gasSprite = new PowerUp.Gas(anim);
+
+        //EXPLODE SPRITE
+        anim = new Animation();
+        image = loadImage("explosive.png");
+        anim.addFrame(image, 150);
+        bombSprite = new PowerUp.Bomb(anim);
     }
 
 }
