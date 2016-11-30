@@ -3,6 +3,7 @@ package com.brackeen.javagamebook.tilegame;
         import java.awt.*;
         import java.awt.event.KeyEvent;
         import java.util.Iterator;
+        import java.util.Scanner;
 
         import javax.sound.midi.Sequence;
         import javax.sound.midi.Sequencer;
@@ -19,6 +20,7 @@ package com.brackeen.javagamebook.tilegame;
  */
 public class GameManager extends GameCore {
 
+    private static boolean Default;
     private boolean shooting;
     private int ct = 0;
     private boolean stopShooting = false;
@@ -26,8 +28,27 @@ public class GameManager extends GameCore {
     //private int wt = 0;
     
     public static void main(String[] args) {
-        new GameManager().run();
+
+
+    //user input
+    Scanner input = new Scanner(System.in); //lol 
+    	System.out.println("Please enter the name of the file you would like to read from.");
+    	while(true){
+        System.out.println("1 = MAP1");
+        System.out.println("2 = MAP2");
+        String option = input.nextLine();
+        if(option.equals("1")){
+            Default = true;
+            break;
+        }else if(option.equals("B")) {
+            Default = false;
+            break;
+        }       }
+       new GameManager().run();
     }
+
+
+
 
     // uncompressed, 44100Hz, 16-bit, mono, signed, little-endian
     private static final AudioFormat PLAYBACK_FORMAT =
@@ -440,7 +461,7 @@ public class GameManager extends GameCore {
             Point tile =
                     getTileCollision(creature, newX, creature.getY());
             if(tile != null){
-            	creature.setState(creature.STATE_DEAD);								
+            	creature.setState(creature.STATE_DEAD);
             	//if it hits something, it dies
             }
             if(creature.travel_accumulation_bug(Math.abs(dx)) < creature.bug_range){		
